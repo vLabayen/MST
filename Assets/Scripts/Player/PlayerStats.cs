@@ -7,4 +7,7 @@ public class PlayerStats : ScriptableObject {
   public float movementSpeed;
   public float jumpForce;
   public float gravityScale;
+
+  public GameObject bulletPrefab;
+  public float shootRate;
 }
