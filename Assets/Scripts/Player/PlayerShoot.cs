@@ -18,13 +18,13 @@ public class PlayerShoot : MonoBehaviour
 
     void FixedUpdate() {
       if (this.controller.fire && this.canShoot) {
-        StartCoroutine(Shoot());
+        StartCoroutine(Shoot(this.controller.fireDirection));
       }
     }
 
-    private IEnumerator Shoot() {
+    private IEnumerator Shoot(Vector2 fireDirection) {
       this.canShoot = false;
-      Object.Instantiate(this.stats.bulletPrefab, shootPoint.position, shootPoint.rotation).GetComponent<BulletMovement>().Setup(Vector2.right);
+      Object.Instantiate(this.stats.bulletPrefab, shootPoint.position, shootPoint.rotation).GetComponent<BulletMovement>().Setup(fireDirection);
       yield return new WaitForSeconds(1f / stats.shootRate);
       this.canShoot = true;
     }
