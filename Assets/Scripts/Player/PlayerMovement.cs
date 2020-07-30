@@ -6,13 +6,15 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class PlayerMovement : MonoBehaviour
 {
-  public PlayerStats stats;
-
+  private PlayerStats stats;
+  private LayerMask floorLayers;
   private InputController controller;
   private Rigidbody2D rb;
   private bool isGrounded = true;
 
-  void Start() {
+  public void Setup(PlayerStats stats, LayerMask floorLayers) {
+    this.stats = stats;
+    this.floorLayers = floorLayers;
     this.controller = this.GetComponent<InputController>();
     this.rb = this.GetComponent<Rigidbody2D>();
     this.rb.constraints = RigidbodyConstraints2D.FreezeRotation;
@@ -30,6 +32,7 @@ public class PlayerMovement : MonoBehaviour
   }
 
   void OnTriggerEnter2D(Collider2D collider) {
-    this.isGrounded = (collider.gameObject.layer == LayerMask.NameToLayer("Floor")) || this.isGrounded;
+    this.isGrounded = (this.floorLayers == (this.floorLayers | (1 << collider.gameObject.layer))) || this.isGrounded;
+    // this.isGrounded = (collider.gameObject.layer == LayerMask.NameToLayer("Floor")) || this.isGrounded;
   }
 }

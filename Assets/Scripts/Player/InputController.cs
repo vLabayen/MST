@@ -4,10 +4,16 @@ using UnityEngine;
 
 public class InputController : MonoBehaviour
 {
+    private Camera playerCamera;
+
     public float x { get; private set; }
     public bool jump { get; private set; }
     public bool fire { get; private set; }
     public Vector2 fireDirection { get; private set; }
+
+    public void Setup(Camera playerCamera) {
+      this.playerCamera = playerCamera;
+    }
 
     void FixedUpdate() {
       this.x = Input.GetAxis("Horizontal");
@@ -17,7 +23,8 @@ public class InputController : MonoBehaviour
     }
 
     private Vector2 GetFireDirection() {
-      return new Vector2(Input.mousePosition.x - this.transform.position.x, Input.mousePosition.y  - this.transform.position.y);
+      Vector3 screenPos = playerCamera.WorldToScreenPoint(this.transform.position);
+      return new Vector2(Input.mousePosition.x - screenPos.x, Input.mousePosition.y  - screenPos.y);
     }
 
 

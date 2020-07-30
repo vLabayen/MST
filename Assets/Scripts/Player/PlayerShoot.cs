@@ -5,13 +5,14 @@ using UnityEngine;
 [RequireComponent(typeof(InputController))]
 public class PlayerShoot : MonoBehaviour
 {
-    public Transform shootPoint;
-    public PlayerStats stats;
-
+    private Transform shootPoint;
+    private PlayerStats stats;
     private InputController controller;
     private bool canShoot;
 
-    void Start() {
+    public void Setup(PlayerStats stats, Transform shootPoint) {
+      this.stats = stats;
+      this.shootPoint = shootPoint;
       this.controller = this.GetComponent<InputController>();
       this.canShoot = true;
     }
