@@ -7,12 +7,7 @@ public class BulletMovement : MonoBehaviour
 {
   public BulletStats stats;
   private Vector3 movementDirection;
-
   private float liveTime;
-
-  void Start() {
-
-  }
 
   public void Setup(Vector2 shootDirection) {
     this.movementDirection = Vector3.Normalize(new Vector3(shootDirection.x, shootDirection.y, 0f));
