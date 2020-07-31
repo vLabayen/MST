@@ -626,6 +626,7 @@ GameObject:
   - component: {fileID: 1361148688}
   - component: {fileID: 1361148690}
   - component: {fileID: 1361148691}
+  - component: {fileID: 1361148692}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -758,7 +759,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64d9475728dcbfa419b2c90287882d27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats: {fileID: 11400000, guid: 5a22f36e3c331c543b73974a61c6156b, type: 2}
 --- !u!61 &1361148689
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -809,8 +809,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83600f089aa0c5543abab2827a3e9789, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shootPoint: {fileID: 663250678}
+--- !u!114 &1361148692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1361148683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2114e84d5d5a679409e7fb6da5d329f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   stats: {fileID: 11400000, guid: 5a22f36e3c331c543b73974a61c6156b, type: 2}
+  shootPoint: {fileID: 663250678}
+  floorLayers:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!1 &1504338866
 GameObject:
   m_ObjectHideFlags: 0
