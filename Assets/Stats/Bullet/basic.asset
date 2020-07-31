@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: basic
   m_EditorClassIdentifier: 
   movementSpeed: 10
-  range: 20
+  range: 8
