@@ -812,6 +812,7 @@ MonoBehaviour:
   floorLayers:
     serializedVersion: 2
     m_Bits: 256
+  playerCamera: {fileID: 519420031}
 --- !u!1 &1504338866
 GameObject:
   m_ObjectHideFlags: 0
