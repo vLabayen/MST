@@ -383,7 +383,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 100
   m_WholeNumbers: 1
-  m_Value: 66
+  m_Value: 64
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -994,6 +994,7 @@ GameObject:
   - component: {fileID: 1361148690}
   - component: {fileID: 1361148691}
   - component: {fileID: 1361148692}
+  - component: {fileID: 1361148693}
   m_Layer: 20
   m_Name: Player
   m_TagString: Untagged
@@ -1195,6 +1196,21 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   playerCamera: {fileID: 519420031}
+--- !u!114 &1361148693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1361148683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 364ba553d19b9c7488cfad53d9dd5108, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthBar: {fileID: 248733678}
+  stats: {fileID: 11400000, guid: 5a22f36e3c331c543b73974a61c6156b, type: 2}
+  health: 85
 --- !u!1 &1449095927
 GameObject:
   m_ObjectHideFlags: 0
@@ -1311,7 +1327,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 11, y: 1.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1468658849

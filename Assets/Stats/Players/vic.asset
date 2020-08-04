@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac1a4df5c785be046ba31fe189413d0c, type: 3}
   m_Name: vic
   m_EditorClassIdentifier: 
-  life: 100
-  lifeRegen: 3
+  health: 100
+  healthRegen: 3
   mana: 50
   armour: 3
   movementSpeed: 5

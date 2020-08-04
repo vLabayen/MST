@@ -11,7 +11,7 @@ public class PlayerMovement : MonoBehaviour
   private InputController controller;
   private Rigidbody2D rb;
   private bool isGrounded = true;
-
+  
   public void Setup(PlayerStats stats, LayerMask floorLayers) {
     this.stats = stats;
     this.floorLayers = floorLayers;
