@@ -16,12 +16,12 @@ public class Client : MonoBehaviour
     private const int BUFF_SIZE = 2048;
 
     //Class fields
-    public static Client instance;
     private byte reliableChannel;
     private int hostID;
     private int connectionID;
     private byte error; //https://docs.unity3d.com/ScriptReference/Networking.NetworkError.html
 
+    public static Client instance;
     public bool IsStarted { get; private set; }
     public bool IsConnected { get; private set; }
 

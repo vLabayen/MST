@@ -22,8 +22,9 @@ public class Server : MonoBehaviour
     private byte error; //https://docs.unity3d.com/ScriptReference/Networking.NetworkError.html
 
     //Class fields
-    public bool isStarted { get; private set; }
     public static Server instance { get; private set; }
+    public bool isStarted { get; private set; }
+    public int connectedPlayers { get { return clients.Count(); } }
     public readonly Dictionary<int, SClient> clients = new Dictionary<int, SClient>();
 
     //Dictionary to store data handlers
@@ -141,7 +142,7 @@ public class Server : MonoBehaviour
     }
 
     //Send message to a client
-    public void SendClient(int cnnID, NetMsg msg){
+    public void SendClient(NetMsg msg, int connectionID){
       byte[] buffer = new byte[BUFF_SIZE];
 
       BinaryFormatter formatter = new BinaryFormatter();
@@ -150,7 +151,7 @@ public class Server : MonoBehaviour
 
       NetworkTransport.Send(
         hostID,
-        cnnID,
+        connectionID,
         reliableChannel,
         buffer,
         BUFF_SIZE,
@@ -160,7 +161,7 @@ public class Server : MonoBehaviour
 
     //Broadcast message
     public void SendBroadcast(NetMsg msg) {
-      foreach(KeyValuePair<int, SClient> keyValuePair in clients) SendClient(keyValuePair.Key, msg);
+      foreach(KeyValuePair<int, SClient> keyValuePair in clients) SendClient(msg, keyValuePair.Key);
     }
 
 
