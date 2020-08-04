@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac1a4df5c785be046ba31fe189413d0c, type: 3}
   m_Name: vic
   m_EditorClassIdentifier: 
-  health: 100
+  maxHealth: 100
+  health: 30
   healthRegen: 3
-  mana: 50
+  maxMana: 70
+  mana: 70
+  manaRegen: 3
   armour: 3
   movementSpeed: 5
   jumpForce: 12
