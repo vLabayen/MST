@@ -32,7 +32,17 @@ public class PlayerMovement : MonoBehaviour
   }
 
   void OnTriggerEnter2D(Collider2D collider) {
-    this.isGrounded = (this.floorLayers == (this.floorLayers | (1 << collider.gameObject.layer))) || this.isGrounded;
-    // this.isGrounded = (collider.gameObject.layer == LayerMask.NameToLayer("Floor")) || this.isGrounded;
+    //Check that (the player is already in the floor) or (hits a floot and is not going up)
+    this.isGrounded = this.isGrounded || (Utils.LayerInMask(collider.gameObject.layer, this.floorLayers) && this.rb.velocity.y <= 0);
+  }
+
+  //Esta funcion evita que puedas saltar desde el aire cuando te dejas caer de una plataforma
+  //  desactivando isGrounded momento que dejas de estar en contacto con el suelo
+  //Puede dar problemas si se hace una plataforma con multiples colliders y se entra
+  //  en uno de ellos antes de dejar el anterior. Al entrar y estar en contacto no se activaria
+  //  posteriormente al salir se desactivaria, a pesar de estar en contacto con el otro
+  //  Se podria mirar de fixearlo (menos eficiente) con OnTriggerStay2D()
+  void OnTriggerExit2D(Collider2D collider) {
+    if (Utils.LayerInMask(collider.gameObject.layer, this.floorLayers)) this.isGrounded = false;
   }
 }

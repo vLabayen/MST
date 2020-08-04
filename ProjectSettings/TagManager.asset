@@ -14,6 +14,7 @@ TagManager:
   - 
   - 
   - Floor
+  - GoThroughFloor
   - 
   - 
   - 
@@ -24,8 +25,7 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - Player
   - 
   - 
   - 

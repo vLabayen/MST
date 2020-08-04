@@ -4,10 +4,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class buttonscript : MonoBehaviour
+public class PlayButton : MonoBehaviour
 {
-    public void Menu(string level)
-    {
+    public void PlayOnClick(string level) {
         SceneManager.LoadScene(level);
     }
 }
