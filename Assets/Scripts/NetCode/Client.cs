@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 
 #pragma warning disable CS0618
-public class Client : MonoBehaviour
+public abstract class Client : MonoBehaviour
 {
     //Client config
     private const int MAX_USER = 100;
@@ -26,19 +26,64 @@ public class Client : MonoBehaviour
     public bool IsConnected { get; private set; }
 
     //Dictionary to store data handlers
-    public delegate void ClientMessageHandlerDelegate(NetMsg msg);
-    private Dictionary<NetOP, ClientMessageHandlerDelegate> dataHandlers = new Dictionary<NetOP, ClientMessageHandlerDelegate>();
+    public delegate void ClientOnMessageReceivedDelegate(NetMsg msg);
+    public delegate void ClientOnMessageSentDelegate(NetMsg msg);
+    private readonly Dictionary<MessageType, ClientOnMessageReceivedDelegate> onMessageReceivedDelegates = new Dictionary<MessageType, ClientOnMessageReceivedDelegate>();
+    private readonly Dictionary<MessageType, ClientOnMessageSentDelegate> onMessageSentDelegates = new Dictionary<MessageType, ClientOnMessageSentDelegate>();
 
-    public void AddDataHandler(NetOP OP, ClientMessageHandlerDelegate handler){
-      if (dataHandlers.ContainsKey(OP) == false) dataHandlers.Add(OP, handler);
+    public event ClientOnMessageReceivedDelegate onAckMessageReceived;
+    public event ClientOnMessageSentDelegate onAckMessageSent;
+
+    protected void AddMessageDelegate(MessageType type, ClientOnMessageReceivedDelegate handler){
+      if (onMessageReceivedDelegates.ContainsKey(type) == false) onMessageReceivedDelegates.Add(type, handler);
       else if (SHOW_LOGS) {
-        string msgType = Enum.GetName(typeof(NetOP), OP);
-        string logMsg = String.Format("Handler already registered for this message : {0}", msgType);
+        string msgType = Enum.GetName(typeof(MessageType), type);
+        string logMsg = String.Format("OnReceivedHandler already registered for this message : {0}", msgType);
+        Debug.LogError(logMsg);
+      }
+    }
+    protected void AddMessageDelegate(MessageType type, ClientOnMessageSentDelegate handler){
+      if (onMessageSentDelegates.ContainsKey(type) == false) onMessageSentDelegates.Add(type, handler);
+      else if (SHOW_LOGS) {
+        string msgType = Enum.GetName(typeof(MessageType), type);
+        string logMsg = String.Format("OnReceivedHandler already registered for this message : {0}", msgType);
         Debug.LogError(logMsg);
       }
     }
 
-    // ------ Unity callbacks
+    public void OnReceivedSubscribe(MessageType type, ClientOnMessageReceivedDelegate callback) {
+        if (onMessageReceivedDelegates.ContainsKey(type)) onMessageReceivedDelegates[type] += callback;
+        else if (SHOW_LOGS) {
+          string msgType = Enum.GetName(typeof(MessageType), type);
+          string logMsg = String.Format("No delegate found for onReceived MessageType.{0}", msgType);
+          Debug.Log(logMsg);
+        }
+    }
+    public void OnSentSubscribe(MessageType type, ClientOnMessageSentDelegate callback) {
+      if (onMessageSentDelegates.ContainsKey(type)) onMessageSentDelegates[type] += callback;
+      else if (SHOW_LOGS) {
+        string msgType = Enum.GetName(typeof(MessageType), type);
+        string logMsg = String.Format("No delegate found for onSent MessageType.{0}", msgType);
+        Debug.Log(logMsg);
+      }
+    }
+    public void OnReceiveUnsubscribe(MessageType type, ClientOnMessageReceivedDelegate callback) {
+      if (onMessageReceivedDelegates.ContainsKey(type)) onMessageReceivedDelegates[type] -= callback;
+      else if (SHOW_LOGS) {
+        string msgType = Enum.GetName(typeof(MessageType), type);
+        string logMsg = String.Format("No delegate found for onReceived MessageType.{0}", msgType);
+        Debug.Log(logMsg);
+      }
+    }
+    public void OnSentUnsubscribe(MessageType type, ClientOnMessageSentDelegate callback) {
+      if (onMessageSentDelegates.ContainsKey(type)) onMessageSentDelegates[type] -= callback;
+      else if (SHOW_LOGS) {
+        string msgType = Enum.GetName(typeof(MessageType), type);
+        string logMsg = String.Format("No delegate found for onSent MessageType.{0}", msgType);
+        Debug.Log(logMsg);
+      }
+    }
+
     void Awake(){
       if (Client.instance == null) {
         Client.instance = this;
@@ -46,35 +91,30 @@ public class Client : MonoBehaviour
       } else Destroy(this.gameObject);
     }
 
-    void Start(){
-      Init();
-    }
-
-    void Update(){
-      UpdateMessagePump();
-    }
-    // ------- Unity callbacks
-
-
     //Start the client
-    public void Init(){
+    protected void Init(){
       if (IsStarted) return;
 
       NetworkTransport.Init();
       ConnectionConfig cc = new ConnectionConfig();
       reliableChannel = cc.AddChannel(QosType.ReliableFragmentedSequenced);
       HostTopology topo = new HostTopology(cc, MAX_USER);
-
       hostID = NetworkTransport.AddHost(topo, 0);
       connectionID = NetworkTransport.Connect(hostID, SERVER_IP, PORT, 0, out error);
+
+      if (onMessageReceivedDelegates.ContainsKey(MessageType.Ack) == false) AddMessageDelegate(MessageType.Ack, onAckMessageReceived);
+      if (onMessageSentDelegates.ContainsKey(MessageType.Ack) == false) AddMessageDelegate(MessageType.Ack, onAckMessageSent);
       IsStarted = true;
       IsConnected = false;
 
-      if (SHOW_LOGS) Debug.Log(string.Format("Connecting to {0}:{1}...", SERVER_IP, PORT));
+      if (SHOW_LOGS) {
+        string logMsg = String.Format("Connecting to {0}:{1}...", SERVER_IP, PORT);
+        Debug.Log(logMsg);
+      }
     }
 
     //Stop the client
-    void Shutdown(){
+    protected void Shutdown(){
       if (!IsStarted) return;
 
       NetworkTransport.Shutdown();
@@ -85,7 +125,7 @@ public class Client : MonoBehaviour
     }
 
     //Read messages
-    void UpdateMessagePump(){
+    protected void PopMessages(){
       if (!IsStarted) return;
 
       int recHostID;
@@ -106,13 +146,15 @@ public class Client : MonoBehaviour
 
       switch (type) {
         case NetworkEventType.ConnectEvent:
+          OnConnected();
           IsConnected = true;
           if (SHOW_LOGS) Debug.Log("Connected to the server");
           break;
 
         case NetworkEventType.DisconnectEvent:
-          if (SHOW_LOGS) Debug.Log("Disconnected from the server");
+          OnDisconnected();
           if ((NetworkError)error == NetworkError.Timeout) Shutdown();
+          if (SHOW_LOGS) Debug.Log("Disconnected from the server");
           break;
 
         case NetworkEventType.DataEvent:
@@ -125,7 +167,23 @@ public class Client : MonoBehaviour
           break;
       }
     }
-    public void SendServer(NetMsg msg){
+
+    //Read a message and raise the event
+    private void ReadMessage(byte[] buffer) {
+      BinaryFormatter formatter = new BinaryFormatter();
+      MemoryStream ms = new MemoryStream(buffer);
+      NetMsg msg = (NetMsg) formatter.Deserialize(ms);
+
+      if (onMessageReceivedDelegates.ContainsKey(msg.type)) onMessageReceivedDelegates[msg.type]?.Invoke(msg);
+      else if (SHOW_LOGS) {
+        string msgType = Enum.GetName(typeof(MessageType), msg.type);
+        string logMsg = String.Format("OnReceivedHandler not set for MessageType.{0}", msgType);
+        Debug.LogError(logMsg);
+      }
+    }
+
+    //Send message to the server
+    public void SendToServer(NetMsg msg){
       if (!IsStarted) return;
 
       byte[] buffer = new byte[BUFF_SIZE];
@@ -142,20 +200,16 @@ public class Client : MonoBehaviour
         BUFF_SIZE,
         out error
       );
-    }
 
-    public void ReadMessage(byte[] buffer) {
-      BinaryFormatter formatter = new BinaryFormatter();
-      MemoryStream ms = new MemoryStream(buffer);
-      NetMsg msg = (NetMsg) formatter.Deserialize(ms);
-
-      foreach(KeyValuePair<NetOP, ClientMessageHandlerDelegate> keyValuePair in dataHandlers) {
-        if (keyValuePair.Key == msg.OP) {
-          keyValuePair.Value?.Invoke(msg);
-          return;
-        }
+      if (onMessageReceivedDelegates.ContainsKey(msg.type)) onMessageSentDelegates[msg.type]?.Invoke(msg);
+      else if (SHOW_LOGS) {
+        string msgType = Enum.GetName(typeof(MessageType), msg.type);
+        string logMsg = String.Format("OnSentHandler not set for MessageType.{0}", msgType);
+        Debug.LogError(logMsg);
       }
-      if (SHOW_LOGS) Debug.LogError(string.Format("NetOP : {0}. Handler not set", msg.OP));
     }
+
+    protected abstract void OnConnected();
+    protected abstract void OnDisconnected();
 }
 #pragma warning restore CS0618

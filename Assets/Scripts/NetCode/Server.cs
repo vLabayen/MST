@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 
 #pragma warning disable CS0618
-public class Server : MonoBehaviour
+public abstract class Server : MonoBehaviour
 {
     //Server config
     private const int MAX_USER = 100;
@@ -16,7 +16,7 @@ public class Server : MonoBehaviour
     private const bool SHOW_LOGS = true;
     private const int BUFF_SIZE = 2048;
 
-    //Internal variables
+    //Internal variables <-- Wrapper for more than one cannel?
     private byte reliableChannel;
     private int hostID;
     private byte error; //https://docs.unity3d.com/ScriptReference/Networking.NetworkError.html
@@ -25,22 +25,67 @@ public class Server : MonoBehaviour
     public static Server instance { get; private set; }
     public bool isStarted { get; private set; }
     public int connectedPlayers { get { return clients.Count(); } }
-    public readonly Dictionary<int, SClient> clients = new Dictionary<int, SClient>();
+    public readonly Dictionary<int, SClient> clients = new Dictionary<int, SClient>(); //Key : connectionID, value : ServerClient
 
     //Dictionary to store data handlers
-    public delegate void ServerMessageHandlerDelegate(NetMsg msg, int connectionID);
-    private Dictionary<NetOP, ServerMessageHandlerDelegate> dataHandlers = new Dictionary<NetOP, ServerMessageHandlerDelegate>();
+    public delegate void ServerOnMessageReceivedDelegate(NetMsg msg, int connectionID);
+    public delegate void ServerOnMessageSentDelegate(NetMsg msg, int connectionID);
+    private readonly Dictionary<MessageType, ServerOnMessageReceivedDelegate> onMessageReceivedDelegates = new Dictionary<MessageType, ServerOnMessageReceivedDelegate>();
+    private readonly Dictionary<MessageType, ServerOnMessageSentDelegate> onMessageSentDelegates = new Dictionary<MessageType, ServerOnMessageSentDelegate>();
 
-    public void AddDataHandler(NetOP OP, ServerMessageHandlerDelegate handler){
-      if (dataHandlers.ContainsKey(OP) == false) dataHandlers.Add(OP, handler);
+    private event ServerOnMessageReceivedDelegate onAckMessageReceived;
+    private event ServerOnMessageSentDelegate onAckMessageSent;
+
+    protected void AddMessageDelegate(MessageType type, ServerOnMessageReceivedDelegate handler){
+      if (onMessageReceivedDelegates.ContainsKey(type) == false) onMessageReceivedDelegates.Add(type, handler);
       else if (SHOW_LOGS) {
-        string msgType = Enum.GetName(typeof(NetOP), OP);
-        string logMsg = String.Format("Handler already registered for this message : {0}", msgType);
+        string msgType = Enum.GetName(typeof(MessageType), type);
+        string logMsg = String.Format("OnReceivedHandler already registered for this message : {0}", msgType);
+        Debug.LogError(logMsg);
+      }
+    }
+    protected void AddMessageDelegate(MessageType type, ServerOnMessageSentDelegate handler){
+      if (onMessageSentDelegates.ContainsKey(type) == false) onMessageSentDelegates.Add(type, handler);
+      else if (SHOW_LOGS) {
+        string msgType = Enum.GetName(typeof(MessageType), type);
+        string logMsg = String.Format("OnSentHandler already registered for this message : {0}", msgType);
         Debug.LogError(logMsg);
       }
     }
 
-    // ------ Unity callbacks
+    public void OnReceivedSubscribe(MessageType type, ServerOnMessageReceivedDelegate callback) {
+        if (onMessageReceivedDelegates.ContainsKey(type)) onMessageReceivedDelegates[type] += callback;
+        else if (SHOW_LOGS) {
+          string msgType = Enum.GetName(typeof(MessageType), type);
+          string logMsg = String.Format("No delegate found for onReceived MessageType.{0}", msgType);
+          Debug.Log(logMsg);
+        }
+    }
+    public void OnSentSubscribe(MessageType type, ServerOnMessageSentDelegate callback) {
+      if (onMessageSentDelegates.ContainsKey(type)) onMessageSentDelegates[type] += callback;
+      else if (SHOW_LOGS) {
+        string msgType = Enum.GetName(typeof(MessageType), type);
+        string logMsg = String.Format("No delegate found for onSent MessageType.{0}", msgType);
+        Debug.Log(logMsg);
+      }
+    }
+    public void OnReceiveUnsubscribe(MessageType type, ServerOnMessageReceivedDelegate callback) {
+      if (onMessageReceivedDelegates.ContainsKey(type)) onMessageReceivedDelegates[type] -= callback;
+      else if (SHOW_LOGS) {
+        string msgType = Enum.GetName(typeof(MessageType), type);
+        string logMsg = String.Format("No delegate found for onReceived MessageType.{0}", msgType);
+        Debug.Log(logMsg);
+      }
+    }
+    public void OnSentUnsubscribe(MessageType type, ServerOnMessageSentDelegate callback) {
+      if (onMessageSentDelegates.ContainsKey(type)) onMessageSentDelegates[type] -= callback;
+      else if (SHOW_LOGS) {
+        string msgType = Enum.GetName(typeof(MessageType), type);
+        string logMsg = String.Format("No delegate found for onSent MessageType.{0}", msgType);
+        Debug.Log(logMsg);
+      }
+    }
+
     void Awake(){
       if (Server.instance == null) {
         Server.instance = this;
@@ -48,19 +93,8 @@ public class Server : MonoBehaviour
       } else Destroy(this.gameObject);
     }
 
-    void Start(){
-      Init();
-    }
-
-    void Update(){
-      UpdateMessagePump();
-      // ConsoleThread();
-    }
-    // ------- Unity callbacks
-
-
     //Start the server
-    void Init(){
+    protected void Init(){
       if (isStarted) return;
 
       //Init the LLAPI
@@ -68,21 +102,21 @@ public class Server : MonoBehaviour
       ConnectionConfig cc = new ConnectionConfig();
       reliableChannel = cc.AddChannel(QosType.ReliableFragmentedSequenced);
       HostTopology topo = new HostTopology(cc, MAX_USER);
-
-      //Start the server
       hostID = NetworkTransport.AddHost(topo, PORT, null);
+
+      if (onMessageReceivedDelegates.ContainsKey(MessageType.Ack) == false) AddMessageDelegate(MessageType.Ack, onAckMessageReceived);
+      if (onMessageSentDelegates.ContainsKey(MessageType.Ack) == false) AddMessageDelegate(MessageType.Ack, onAckMessageSent);
       isStarted = true;
 
       //SHOW_LOGS
       if (SHOW_LOGS) {
-        string logMsg = string.Format("Opening socket on port {0}...", PORT);
+        string logMsg = String.Format("Opening socket on port {0}...", PORT);
         Debug.Log(logMsg);
       }
     }
 
-
     //Stop the server
-    void Shutdown(){
+    protected void Shutdown(){
       if (!isStarted) return;
 
       NetworkTransport.Shutdown();
@@ -99,7 +133,7 @@ public class Server : MonoBehaviour
     }
 
     //Read messages
-    void UpdateMessagePump(){
+    protected void PopMessages(){
       if (!isStarted) return;
 
       int recHostID;
@@ -121,13 +155,25 @@ public class Server : MonoBehaviour
       switch (type)
       {
         case NetworkEventType.ConnectEvent:
-          if (SHOW_LOGS) Debug.Log(string.Format("Connected user {0}", connectionID));
-          clients.Add(connectionID, new SClient(connectionID));
+          SClient newclient = new SClient(connectionID);
+          clients.Add(connectionID, newclient);
+          OnClientConnected(newclient);
+
+          if (SHOW_LOGS) {
+            string logMsg = String.Format("Connected user {0}", connectionID);
+            Debug.Log(logMsg);
+          }
           break;
 
         case NetworkEventType.DisconnectEvent:
-          if (SHOW_LOGS) Debug.Log(string.Format("Disconnected user {0}", connectionID));
+          SClient oldclient = clients[connectionID];
           clients.Remove(connectionID);
+          OnClientDisconnected(oldclient);
+
+          if (SHOW_LOGS) {
+            string logMsg = String.Format("Disconnected user {0}", connectionID);
+            Debug.Log(logMsg);
+          }
           break;
 
         case NetworkEventType.DataEvent:
@@ -141,8 +187,22 @@ public class Server : MonoBehaviour
       }
     }
 
+    //Read a message and raise the event
+    private void ReadMessage(byte[] buffer, int connectionID) {
+      BinaryFormatter formatter = new BinaryFormatter();
+      MemoryStream ms = new MemoryStream(buffer);
+      NetMsg msg = (NetMsg) formatter.Deserialize(ms);
+
+      if (onMessageReceivedDelegates.ContainsKey(msg.type)) onMessageReceivedDelegates[msg.type]?.Invoke(msg, connectionID);
+      else if (SHOW_LOGS) {
+        string msgType = Enum.GetName(typeof(MessageType), msg.type);
+        string logMsg = String.Format("OnReceivedHandler not set for MessageType.{0}", msgType);
+        Debug.LogError(logMsg);
+      }
+    }
+
     //Send message to a client
-    public void SendClient(NetMsg msg, int connectionID){
+    public void SendToClient(NetMsg msg, int connectionID){
       byte[] buffer = new byte[BUFF_SIZE];
 
       BinaryFormatter formatter = new BinaryFormatter();
@@ -157,26 +217,27 @@ public class Server : MonoBehaviour
         BUFF_SIZE,
         out error
       );
+
+      if (onMessageReceivedDelegates.ContainsKey(msg.type)) onMessageSentDelegates[msg.type]?.Invoke(msg, connectionID);
+      else if (SHOW_LOGS) {
+        string msgType = Enum.GetName(typeof(MessageType), msg.type);
+        string logMsg = String.Format("OnSentHandler not set for MessageType.{0}", msgType);
+        Debug.LogError(logMsg);
+      }
     }
 
     //Broadcast message
     public void SendBroadcast(NetMsg msg) {
-      foreach(KeyValuePair<int, SClient> keyValuePair in clients) SendClient(msg, keyValuePair.Key);
+      foreach(KeyValuePair<int, SClient> keyValuePair in clients) SendToClient(msg, keyValuePair.Key);
     }
 
-
-    public void ReadMessage(byte[] buffer, int connectionID) {
-      BinaryFormatter formatter = new BinaryFormatter();
-      MemoryStream ms = new MemoryStream(buffer);
-      NetMsg msg = (NetMsg) formatter.Deserialize(ms);
-
-      foreach(KeyValuePair<NetOP, ServerMessageHandlerDelegate> keyValuePair in dataHandlers) {
-        if (keyValuePair.Key == msg.OP) {
-          keyValuePair.Value?.Invoke(msg, connectionID);
-          return;
-        }
-      }
-      if (SHOW_LOGS) Debug.LogError(string.Format("NetOP : {0}. Handler not set", msg.OP));
+    //Broadcast message except for a player
+    public void SendBroadcast(NetMsg msg, int connectionID) {
+      foreach(KeyValuePair<int, SClient> keyValuePair in clients)
+        if (keyValuePair.Key != connectionID) SendToClient(msg, keyValuePair.Key);
     }
+
+    protected abstract void OnClientConnected(SClient client);
+    protected abstract void OnClientDisconnected(SClient client);
 }
 #pragma warning restore CS0618s

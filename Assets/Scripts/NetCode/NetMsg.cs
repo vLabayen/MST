@@ -1,9 +1,9 @@
 [System.Serializable]
-public class NetMsg
+public abstract class NetMsg
 {
-  public NetOP OP { set; get; }
+  public MessageType type { set; get; }
 
-  public NetMsg(){
-    this.OP = NetOP.None;
+  public NetMsg(MessageType type){
+    this.type = type;
   }
 }
