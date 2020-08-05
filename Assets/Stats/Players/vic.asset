@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: vic
   m_EditorClassIdentifier: 
   maxHealth: 100
-  health: 30
-  healthRegen: 3
+  health: 100
+  healthRegen: 5
   maxMana: 70
   mana: 70
   manaRegen: 3
