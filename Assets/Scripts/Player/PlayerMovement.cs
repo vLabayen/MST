@@ -10,8 +10,8 @@ public class PlayerMovement : MonoBehaviour
   private LayerMask floorLayers;
   private InputController controller;
   private Rigidbody2D rb;
-  private bool isGrounded = true;
-  
+  public bool isGrounded { get; private set; }
+
   public void Setup(PlayerStats stats, LayerMask floorLayers) {
     this.stats = stats;
     this.floorLayers = floorLayers;
@@ -19,6 +19,7 @@ public class PlayerMovement : MonoBehaviour
     this.rb = this.GetComponent<Rigidbody2D>();
     this.rb.constraints = RigidbodyConstraints2D.FreezeRotation;
     this.rb.gravityScale = this.stats.gravityScale;
+    this.isGrounded = true;
   }
 
   void FixedUpdate() {
