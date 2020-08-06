@@ -13,7 +13,7 @@ public class ManaBar : MonoBehaviour
         slider.value = maxMana;
     }
 
-    public void setHealth(int mana)
+    public void setMana(int mana)
     {
         slider.value = mana;
     }
