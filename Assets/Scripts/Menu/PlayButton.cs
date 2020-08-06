@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class PlayButton : MonoBehaviour
 {
     public void PlayOnClick(string level) {
-        SceneManager.LoadScene(level);
+      (Client.instance as GameClient).ConnectToServer();
+      SceneManager.LoadScene(level);
     }
 }
