@@ -308,7 +308,6 @@ GameObject:
   m_Component:
   - component: {fileID: 248733676}
   - component: {fileID: 248733677}
-  - component: {fileID: 248733678}
   m_Layer: 5
   m_Name: HealthBar
   m_TagString: Untagged
@@ -382,25 +381,12 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 100
-  m_WholeNumbers: 1
-  m_Value: 82
+  m_MaxValue: 1
+  m_WholeNumbers: 0
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &248733678
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 248733675}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac2ad1747ca104c44a160645f6a84225, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  slider: {fileID: 248733677}
 --- !u!1 &317887475
 GameObject:
   m_ObjectHideFlags: 0
@@ -1144,9 +1130,10 @@ GameObject:
   - component: {fileID: 1361148688}
   - component: {fileID: 1361148690}
   - component: {fileID: 1361148691}
-  - component: {fileID: 1361148692}
   - component: {fileID: 1361148693}
+  - component: {fileID: 1361148695}
   - component: {fileID: 1361148694}
+  - component: {fileID: 1361148692}
   m_Layer: 20
   m_Name: Player
   m_TagString: Untagged
@@ -1348,8 +1335,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   playerCamera: {fileID: 519420031}
-  healthBar: {fileID: 248733678}
-  manaBar: {fileID: 1674584233}
+  healthBar: {fileID: 248733677}
+  manaBar: {fileID: 1674584232}
 --- !u!114 &1361148693
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1372,6 +1359,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9770bb32d1c13f9409bbfa5b507022ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1361148695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1361148683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22212dfe2807aac449bf75f343acca31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1449095927
@@ -1650,7 +1649,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1674584230}
   - component: {fileID: 1674584232}
-  - component: {fileID: 1674584233}
   m_Layer: 5
   m_Name: ManaBar
   m_TagString: Untagged
@@ -1724,25 +1722,12 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 100
-  m_WholeNumbers: 1
-  m_Value: 64
+  m_MaxValue: 1
+  m_WholeNumbers: 0
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &1674584233
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1674584229}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 31f447d996b29684aaae740465de63d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  slider: {fileID: 1674584232}
 --- !u!1 &1705277602
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,10 +7,13 @@ public class PlayerStats : ScriptableObject {
     public float maxHealth;
     public float health;
     public float healthRegen;
+
     public float maxMana;
     public float mana;
     public float manaRegen;
+
     public float armour;
+
     public float movementSpeed;
     public float jumpForce;
     public float gravityScale;

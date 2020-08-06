@@ -4,32 +4,24 @@ using UnityEngine;
 
 public class PlayerAbilities : MonoBehaviour
 {
-    private ManaBar manaBar;
     private PlayerStats stats;
-    private float mana;
+    private Mana mana;
 
-    public void Setup(ManaBar manaBar, PlayerStats stats)
+    public void Setup(PlayerStats stats)
     {
-        this.manaBar = manaBar;
-        this.stats = stats;
-        mana = stats.maxMana;
-        manaBar.setMaxMana((int)stats.maxMana);
-        stats.health = mana;
-    }    
+        this.stats =  stats;
+        this.mana = this.gameObject.GetComponent<Mana>();
+    }
+
+    //Esto habra que hacerlo mejor para dar soporte a varios tipos de habilidades
+    private void CastSpell() {
+      if (mana.SpendMana(15f)) Debug.Log("Habilidad lanzada");
+      else Debug.Log("No hay suficiente mana");
+    }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            mana -= 15f;
-            manaBar.setMana((int) mana);
-        }
-        
-        if (stats.maxMana > mana)
-        {
-            mana += stats.manaRegen * Time.deltaTime;
-            manaBar.setMana((int)mana);
-        }
+        if (Input.GetKeyDown(KeyCode.Q)) CastSpell(); //Esto hay que moverlo al input controller
     }
 }
