@@ -114,7 +114,6 @@ public abstract class Server : MonoBehaviour
         Debug.Log(logMsg);
       }
     }
-
     //Stop the server
     protected void Shutdown(){
       if (!isStarted) return;
@@ -124,7 +123,6 @@ public abstract class Server : MonoBehaviour
 
       if (SHOW_LOGS) Debug.Log("Closing server socket.");
     }
-
     //Debug clients
     void ConsoleThread(){
       if (Input.GetKeyDown("space")){
@@ -186,7 +184,6 @@ public abstract class Server : MonoBehaviour
           break;
       }
     }
-
     //Read a message and raise the event
     private void ReadMessage(byte[] buffer, int connectionID) {
       BinaryFormatter formatter = new BinaryFormatter();
@@ -225,12 +222,10 @@ public abstract class Server : MonoBehaviour
         Debug.LogError(logMsg);
       }
     }
-
     //Broadcast message
     public void SendBroadcast(NetMsg msg) {
       foreach(KeyValuePair<int, SClient> keyValuePair in clients) SendToClient(msg, keyValuePair.Key);
     }
-
     //Broadcast message except for a player
     public void SendBroadcast(NetMsg msg, int connectionID) {
       foreach(KeyValuePair<int, SClient> keyValuePair in clients)

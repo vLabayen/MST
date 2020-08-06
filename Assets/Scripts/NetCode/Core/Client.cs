@@ -12,7 +12,6 @@ public abstract class Client : MonoBehaviour
     private const int MAX_USER = 100;
     private const int PORT = 9200;
     private const bool SHOW_LOGS = true;
-    private const string SERVER_IP = "127.0.0.1";
     private const int BUFF_SIZE = 2048;
 
     //Class fields
@@ -92,7 +91,7 @@ public abstract class Client : MonoBehaviour
     }
 
     //Start the client
-    protected void Init(){
+    protected void Init(string server_ip){
       if (IsStarted) return;
 
       NetworkTransport.Init();
@@ -100,7 +99,7 @@ public abstract class Client : MonoBehaviour
       reliableChannel = cc.AddChannel(QosType.ReliableFragmentedSequenced);
       HostTopology topo = new HostTopology(cc, MAX_USER);
       hostID = NetworkTransport.AddHost(topo, 0);
-      connectionID = NetworkTransport.Connect(hostID, SERVER_IP, PORT, 0, out error);
+      connectionID = NetworkTransport.Connect(hostID, server_ip, PORT, 0, out error);
 
       if (onMessageReceivedDelegates.ContainsKey(MessageType.Ack) == false) AddMessageDelegate(MessageType.Ack, onAckMessageReceived);
       if (onMessageSentDelegates.ContainsKey(MessageType.Ack) == false) AddMessageDelegate(MessageType.Ack, onAckMessageSent);
@@ -108,9 +107,10 @@ public abstract class Client : MonoBehaviour
       IsConnected = false;
 
       if (SHOW_LOGS) {
-        string logMsg = String.Format("Connecting to {0}:{1}...", SERVER_IP, PORT);
+        string logMsg = String.Format("Connecting to {0}:{1}...", server_ip, PORT);
         Debug.Log(logMsg);
       }
+
     }
 
     //Stop the client
