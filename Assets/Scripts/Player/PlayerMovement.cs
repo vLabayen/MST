@@ -44,6 +44,6 @@ public class PlayerMovement : MonoBehaviour
   //  posteriormente al salir se desactivaria, a pesar de estar en contacto con el otro
   //  Se podria mirar de fixearlo (menos eficiente) con OnTriggerStay2D()
   void OnTriggerExit2D(Collider2D collider) {
-    this.isGrounded = false;
+    if (Utils.LayerInMask(collider.gameObject.layer, this.floorLayers)) this.isGrounded = false;
   }
 }
