@@ -24,3 +24,4 @@ MonoBehaviour:
   gravityScale: 2.7
   bulletPrefab: {fileID: 7568531844569711265, guid: a6ab152970b9e094495cc95badbb3f21, type: 3}
   shootRate: 5
+  menuImage: {fileID: 21300000, guid: e4c7bd885b6e5ff428cac9aef878c298, type: 3}

@@ -7,14 +7,15 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Health), typeof(Mana), typeof(PlayerAbilities))]
 public class Player : MonoBehaviour
 {
-    public PlayerStats stats;
+    private PlayerStats stats;
     public Transform shootPoint;
     public LayerMask floorLayers;
     public Camera playerCamera;
     public Slider healthBar;
     public Slider manaBar;
 
-  void Start () {
+  public void Setup(PlayerStats stats) {
+    this.stats = stats;
     this.gameObject.GetComponent<PlayerMovement>().Setup(stats, floorLayers);
     this.gameObject.GetComponent<PlayerShoot>().Setup(stats, shootPoint);
     this.gameObject.GetComponent<InputController>().Setup(playerCamera);

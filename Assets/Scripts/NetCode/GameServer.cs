@@ -9,15 +9,15 @@ public class GameServer : Server
     this.Init();
   }
 
-  public void Update() {
+  public void FixedUpdate() {
     this.PopMessages();
   }
 
   protected override void OnClientConnected(SClient client) {
-    Debug.Log("Client connected");
+    // Debug.Log("Client connected");
   }
   protected override void OnClientDisconnected(SClient client) {
-    Debug.Log("Client disconnected");
+    // Debug.Log("Client disconnected");
   }
 
 }
