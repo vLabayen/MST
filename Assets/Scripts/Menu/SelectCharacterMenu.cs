@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class SelectCharacterMenu : MonoBehaviour
 {
   public GameObject buttonPrefab;
+  
   public delegate void OnCharacterSelectedDelegate(CharacterType type);
   public event OnCharacterSelectedDelegate onCharacterSelected;
 

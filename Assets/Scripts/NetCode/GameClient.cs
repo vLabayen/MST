@@ -6,9 +6,17 @@ using UnityEngine.Networking;
 
 public class GameClient : Client
 {
-
+  //Connection - Disconnection events
   public delegate void OnConnectedToServer();
+  public delegate void OnDisconnectedFromServer();
   public event OnConnectedToServer onConnected;
+  public event OnDisconnectedFromServer onDisconnected;
+
+  //NetMsg events
+
+  void Start() {
+
+  }
 
   void FixedUpdate() {
     this.PopMessages();
@@ -18,10 +26,6 @@ public class GameClient : Client
     this.Init(serverAddress);
   }
 
-  protected override void OnConnected() {
-    onConnected?.Invoke();
-  }
-  protected override void OnDisconnected() {
-
-  }
+  protected override void OnConnected() => onConnected?.Invoke();
+  protected override void OnDisconnected() => onDisconnected?.Invoke();
 }

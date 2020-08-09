@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     public SceneField gameScene;
     public GameObject playerPrefab;
 
+    private GameClient client;
     private Dictionary<CharacterType, PlayerStats> characters = new Dictionary<CharacterType, PlayerStats>();
     private Dictionary<int, Player> players = new Dictionary<int, Player>();
 
@@ -27,8 +28,14 @@ public class GameManager : MonoBehaviour
     }
 
     void Start() {
+      client = (GameClient.instance as GameClient);
+
       menuManager.Setup(characters);
+      menuManager.tryConnectToServer += (string serverAddress) => client.ConnectToServer(serverAddress);
+      client.onConnected += menuManager.OpenSelectCharacterMenu;
       menuManager.onCharacterSelected += StartGameRequest;
+
+      menuManager.OpenConnectMenu();
     }
 
 
@@ -47,23 +54,30 @@ public class GameManager : MonoBehaviour
       Quaternion spawnRotation = Quaternion.identity;
       PlayerStats stats = characters[type];
       int playerID = 1;
+      bool isLocalPlayer = true;
 
-      StartCoroutine(StartGame(spawnPosition, spawnRotation, stats, playerID));
+      StartCoroutine(StartGame(spawnPosition, spawnRotation, stats, playerID, isLocalPlayer));
     }
 
-    private IEnumerator StartGame(Vector3 pos, Quaternion rot, PlayerStats stats, int playerID) {
+    private IEnumerator StartGame(Vector3 pos, Quaternion rot, PlayerStats stats, int playerID, bool isLocalPlayer) {
       AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(gameScene);
       while (!asyncLoad.isDone) {
         //Aqui se puede poner una barra de cargando o algo
         yield return null;
       }
 
-      SpawnPlayer(pos, rot, stats, playerID);
+      SpawnPlayer(pos, rot, stats, playerID, isLocalPlayer);
     }
 
-    private void SpawnPlayer(Vector3 pos, Quaternion rot, PlayerStats stats, int playerID) {
+    private void SpawnPlayer(Vector3 pos, Quaternion rot, PlayerStats stats, int playerID, bool isLocalPlayer) {
       Player player = Object.Instantiate(playerPrefab, pos, rot).GetComponent<Player>();
       players.Add(playerID, player);
-      player.Setup(stats);
+      player.Setup(stats, isLocalPlayer);
+      if (isLocalPlayer) player.gameObject.GetComponent<InputController>().onInputActive +=
+        (PlayerInputMsg msg) => SyncPlayerInput(playerID, msg);
+    }
+
+    private void SyncPlayerInput(int playerID, PlayerInputMsg msg) {
+      Debug.Log(System.String.Format("Player {0} sync input", playerID));
     }
 }
