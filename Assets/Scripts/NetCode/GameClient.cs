@@ -1,26 +1,31 @@
+using System;
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Networking;
 
 public class GameClient : Client
 {
+  //Connection - Disconnection events
+  public delegate void OnConnectedToServer();
+  public delegate void OnDisconnectedFromServer();
+  public event OnConnectedToServer onConnected;
+  public event OnDisconnectedFromServer onDisconnected;
 
-  [SerializeField] private Text serverAddressText;
-  public string serverAddress { get { return serverAddressText.text; } }
+  //NetMsg events
 
-  public void ConnectToServer() {
-    this.Init(serverAddress);
+  void Start() {
+
   }
 
-  public void Update() {
+  void FixedUpdate() {
     this.PopMessages();
   }
 
-  protected override void OnConnected() {
-
+  public void ConnectToServer(string serverAddress) {
+    this.Init(serverAddress);
   }
-  protected override void OnDisconnected() {
 
-  }
+  protected override void OnConnected() => onConnected?.Invoke();
+  protected override void OnDisconnected() => onDisconnected?.Invoke();
 }
