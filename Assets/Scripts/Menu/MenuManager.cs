@@ -9,7 +9,7 @@ public class MenuManager : MonoBehaviour
 
     public ConnectMenu connectMenu;
     public SelectCharacterMenu selectCharacterMenu;
-
+    
     public delegate void TryConnectToServerDelegate(string serverAddress);
     public delegate void OnCharacterSelectedDelegate(CharacterType type);
     public event TryConnectToServerDelegate tryConnectToServer;
