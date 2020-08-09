@@ -73,7 +73,7 @@ public class GameManager : MonoBehaviour
       Player player = Object.Instantiate(playerPrefab, pos, rot).GetComponent<Player>();
       players.Add(playerID, player);
       player.Setup(stats, isLocalPlayer);
-      if (isLocalPlayer) player.gameObject.GetComponent<InputController>().onInputRefreshed +=
+      if (isLocalPlayer) player.gameObject.GetComponent<InputController>().onInputActive +=
         (PlayerInputMsg msg) => SyncPlayerInput(playerID, msg);
     }
 
