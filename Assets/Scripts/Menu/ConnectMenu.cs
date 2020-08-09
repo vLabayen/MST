@@ -9,7 +9,10 @@ public class ConnectMenu : MonoBehaviour
     public Text serverAddressText;
     public Button connectButton;
 
-    public void Setup(Action<string> connectButtonOnClick) {
-        connectButton.onClick.AddListener(() => connectButtonOnClick(serverAddressText.text));
+    public delegate void TryConnectToServerDelegate(string serverAddress);
+    public event TryConnectToServerDelegate tryConnectToServer;
+
+    public void Setup() {
+        connectButton.onClick.AddListener(() => tryConnectToServer?.Invoke(serverAddressText.text));
     }
 }

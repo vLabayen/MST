@@ -8,14 +8,17 @@ using UnityEngine.UI;
 public class Player : MonoBehaviour
 {
     private PlayerStats stats;
+    private bool isLocalPlayer;
+
     public Transform shootPoint;
     public LayerMask floorLayers;
     public Camera playerCamera;
     public Slider healthBar;
     public Slider manaBar;
 
-  public void Setup(PlayerStats stats) {
+  public void Setup(PlayerStats stats, bool isLocalPlayer) {
     this.stats = stats;
+    this.isLocalPlayer = isLocalPlayer;
     this.gameObject.GetComponent<PlayerMovement>().Setup(stats, floorLayers);
     this.gameObject.GetComponent<PlayerShoot>().Setup(stats, shootPoint);
     this.gameObject.GetComponent<InputController>().Setup(playerCamera);
