@@ -12,8 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac1a4df5c785be046ba31fe189413d0c, type: 3}
   m_Name: vic
   m_EditorClassIdentifier: 
+  maxHealth: 100
+  health: 100
+  healthRegen: 5
+  maxMana: 70
+  mana: 70
+  manaRegen: 3
+  armour: 3
   movementSpeed: 5
-  jumpForce: 10
-  gravityScale: 2
+  jumpForce: 12
+  gravityScale: 2.7
   bulletPrefab: {fileID: 7568531844569711265, guid: a6ab152970b9e094495cc95badbb3f21, type: 3}
   shootRate: 5
+  menuImage: {fileID: 21300000, guid: e4c7bd885b6e5ff428cac9aef878c298, type: 3}
